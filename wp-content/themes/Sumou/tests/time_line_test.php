@@ -102,6 +102,12 @@ assert_true( null !== $time_line_page, 'The "Time Line" ACF options page is regi
 assert_true( 'Time Line' === ( $time_line_page['page_title'] ?? '' ), 'The options page title is "Time Line"' );
 assert_true( 'Time Line' === ( $time_line_page['menu_title'] ?? '' ), 'The options menu title is "Time Line"' );
 
+$functions_source = file_get_contents( $theme_dir . '/functions.php' );
+assert_contains( 'Functions/Options/time_line_options.php', $functions_source, 'functions.php loads the Time Line options registration' );
+
+$index_source = file_get_contents( $theme_dir . '/index.php' );
+assert_contains( 'template-parts/time_line', $index_source, 'The front page renders the Time Line template part' );
+
 $time_line_group = find_time_line_group();
 assert_true( null !== $time_line_group, 'The Time Line field group is bound to the time-line-options page' );
 
