@@ -1,0 +1,273 @@
+/* ==========================================================================
+   Sumou – shared stylesheet (all pages)
+   Sections: 1 base · 2 scrollbar · 3 glass/gradients · 4 backgrounds
+             5 scroll-reveal · 6 page-specific (scoped by body.page-*)
+   ========================================================================== */
+
+/* 1. Base ---------------------------------------------------------------- */
+html { scroll-padding-top: 5.5rem; }
+body {
+  font-family: 'Cairo', sans-serif;
+  background-color: #070C18;
+  color: #F1F5F9;
+  overflow-x: hidden;
+}
+.font-cinzel { font-family: 'Cinzel', serif; }
+.font-num { font-family: 'Inter', 'Cairo', sans-serif; }
+
+/* Force Tajawal on the pages that were designed with the override */
+body:is(.page-home, .page-services, .page-portfolio, .page-seo),
+body:is(.page-home, .page-services, .page-portfolio, .page-seo) :is(input, button, select, textarea, p, span, a, li, label) {
+  font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+body:is(.page-home, .page-services, .page-portfolio, .page-seo) :is(h1, h2, h3, h4, h5, h6, .font-heading, .heading-gradient, .hero-title) {
+  font-family: 'Tajawal', sans-serif !important;
+  letter-spacing: -0.01em;
+}
+body:is(.page-home, .page-services, .page-portfolio, .page-seo) .font-cinzel {
+  font-family: 'Cinzel', serif !important;
+}
+
+/* 2. Luxury gold scrollbar ---------------------------------------------- */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track {
+  background: #040914;
+  border-left: 1px solid rgba(212, 165, 55, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #d4af37, #f6e05e);
+  border-radius: 9999px;
+  border: 2px solid #040914;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #f6e05e, #d4af37);
+  box-shadow: 0 0 16px rgba(246, 224, 94, 0.65);
+}
+* { scrollbar-width: thin; scrollbar-color: #d4af37 #040914; }
+
+/* 3. Glassmorphism, gradients, buttons ---------------------------------- */
+.glass-luxury {
+  background: linear-gradient(135deg, rgba(16, 26, 50, 0.72) 0%, rgba(8, 14, 28, 0.85) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 165, 55, 0.18);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+.glass-luxury:hover {
+  border-color: rgba(212, 165, 55, 0.45);
+  box-shadow: 0 25px 55px rgba(30, 111, 217, 0.25), 0 0 30px rgba(212, 165, 55, 0.2);
+}
+.glass-blue {
+  background: linear-gradient(135deg, rgba(14, 30, 65, 0.65) 0%, rgba(7, 12, 24, 0.8) 100%);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+}
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFF1C5 0%, #F5D77A 35%, #D4A537 70%, #996D19 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.blue-gradient-text {
+  background: linear-gradient(135deg, #E0F2FE 0%, #38BDF8 50%, #1D4ED8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.gold-btn-gradient {
+  background: linear-gradient(135deg, #F9DF88 0%, #D4A537 50%, #B8860B 100%);
+  box-shadow: 0 6px 20px rgba(212, 165, 55, 0.35);
+  transition: all 0.35s ease;
+}
+.gold-btn-gradient:hover {
+  box-shadow: 0 8px 30px rgba(245, 215, 122, 0.55), 0 0 15px rgba(56, 189, 248, 0.3);
+  transform: translateY(-2px);
+}
+
+/* 4. Background grid + glow orbs ---------------------------------------- */
+.cyber-grid-pattern {
+  background-size: 55px 55px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+.circuit-glow-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 5. Scroll reveal (one system for every page) -------------------------- */
+.reveal-on-scroll,
+.reveal-item {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.reveal-fade {
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+}
+.reveal-item.reveal-left  { transform: translateX(40px); }
+.reveal-item.reveal-right { transform: translateX(-40px); }
+.reveal-item.reveal-scale { transform: scale(0.92) translateY(20px); }
+
+/* revealed state – JS adds all three class names */
+.reveal-on-scroll.revealed, .reveal-on-scroll.is-revealed, .reveal-on-scroll.is-visible,
+.reveal-item.revealed, .reveal-item.is-revealed, .reveal-item.is-visible {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+.reveal-fade.revealed, .reveal-fade.is-revealed, .reveal-fade.is-visible { opacity: 1; }
+
+/* stagger helpers */
+.delay-100, .reveal-delay-100, .reveal-item[data-delay="100"] { transition-delay: 100ms; }
+.delay-150 { transition-delay: 150ms; }
+.delay-200, .reveal-delay-200, .reveal-item[data-delay="200"] { transition-delay: 200ms; }
+.delay-250 { transition-delay: 250ms; }
+.delay-300, .reveal-delay-300, .reveal-item[data-delay="300"] { transition-delay: 300ms; }
+.delay-350 { transition-delay: 350ms; }
+.delay-400, .reveal-delay-400, .reveal-item[data-delay="400"] { transition-delay: 400ms; }
+.reveal-delay-500 { transition-delay: 500ms; }
+.reveal-delay-600 { transition-delay: 600ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll, .reveal-item, .reveal-fade {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* 6. Page-specific styles ------------------------------------------------ */
+
+/* ---- Pricing page (body.page-pricing) ---- */
+body.page-pricing {
+  background-color: #050914;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(212, 175, 55, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(15, 23, 46, 0.5) 0px, transparent 100%);
+  background-attachment: fixed;
+  font-family: 'Tajawal', sans-serif;
+  color: #e2e8f0;
+}
+.page-pricing .glass-card {
+  background: rgba(15, 23, 46, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.page-pricing .glass-card-gold {
+  background: linear-gradient(180deg, rgba(20, 29, 56, 0.8) 0%, rgba(11, 19, 41, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+}
+.page-pricing .gold-gradient-text {
+  background: linear-gradient(135deg, #fff 20%, #fbd38d 60%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.page-pricing .gold-button-gradient {
+  background: linear-gradient(135deg, #f59e0b 0%, #d4af37 100%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page-pricing .gold-button-gradient:hover {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.45);
+  transform: translateY(-2px);
+}
+
+/* ---- Blog page (body.page-blog) ---- */
+body.page-blog {
+  background-color: #050914;
+  font-family: 'Tajawal', sans-serif;
+  color: #E2E8F0;
+  background-image:
+    radial-gradient(at 10% 20%, rgba(15, 29, 63, 0.6) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(212, 175, 55, 0.04) 0px, transparent 40%),
+    radial-gradient(at 50% 50%, rgba(0, 210, 255, 0.02) 0px, transparent 60%);
+  background-attachment: fixed;
+}
+.gold-text-gradient {
+  background: linear-gradient(135deg, #FBE8A6 0%, #D4AF37 55%, #AA7C11 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.gold-border-glow {
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gold-border-glow:hover {
+  border-color: rgba(212, 175, 55, 0.65);
+  box-shadow: 0 10px 30px -10px rgba(212, 175, 55, 0.28);
+}
+.glass-panel {
+  background: rgba(13, 22, 43, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.badge-gold {
+  background: rgba(212, 175, 55, 0.12);
+  color: #F3DC9B;
+  border: 1px solid rgba(212, 175, 55, 0.32);
+}
+
+/* ---- Infinite logo marquee (client partners) ---- */
+/* The strip is laid out left-to-right even on RTL pages: a track that overflows
+to the left (RTL default) is pulled out of the strip by a negative translate and
+the strip goes empty. LTR layout + translateX(-50%) always has content ready. */
+.logo-marquee { direction: ltr; }
+.logo-marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  animation: sumou-marquee 35s linear infinite;
+  will-change: transform;
+}
+@keyframes sumou-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ---- About page (body.page-about) ---- */
+body.page-about {
+  font-family: 'Tajawal', sans-serif;
+  background-color: #070C18;
+  color: #E2E8F0;
+}
+.page-about .font-num { font-family: 'Cinzel', serif; }
+.text-gold-gradient {
+  background: linear-gradient(135deg, #FFE599 0%, #D4A537 50%, #B8860B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.text-blue-gradient {
+  background: linear-gradient(135deg, #60A5FA 0%, #1E6FD9 60%, #0284C7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.page-about .glass-card {
+  background: rgba(13, 22, 43, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 165, 55, 0.22);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.65), 0 0 25px -8px rgba(30, 111, 217, 0.2);
+}
+.glass-card-hover { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.glass-card-hover:hover {
+  transform: translateY(-8px);
+  border-color: rgba(245, 215, 122, 0.55);
+  box-shadow: 0 24px 45px -10px rgba(7, 12, 24, 0.9), 0 0 35px 2px rgba(30, 111, 217, 0.35);
+}
+.gold-border-gradient {
+  border-image: linear-gradient(135deg, #F5D77A, rgba(212, 165, 55, 0.3), #1E6FD9) 1;
+}
+.cyber-circuit-bg {
+  background-image: radial-gradient(rgba(30, 111, 217, 0.15) 1px, transparent 1px), radial-gradient(rgba(212, 165, 55, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+}
