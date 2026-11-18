@@ -6,6 +6,7 @@
     include("Functions/Options/time_line_options.php") ;
     include("Functions/Options/why_sumou_options.php") ;
     include("Functions/Options/baka_options.php") ;
+    include("Functions/Options/tecnology_used_options.php") ;
     include("Functions/Post-Types/services_post_type.php") ;
     include("Functions/Post-Types/works_post_type.php") ;
     add_theme_support( 'post-thumbnails' ) ;
