@@ -11,6 +11,10 @@ if ( ! $showcase_id ) {
 
 $showcase_title        = get_the_title( $showcase_id );
 $showcase_permalink    = get_permalink( $showcase_id );
+$showcase_terms        = sumou_get_work_terms( $showcase_id );
+$showcase_categories   = implode( ' ', array_map( function ( $term ) {
+    return $term->slug;
+}, $showcase_terms ) );
 $showcase_badge        = sumou_get_work_badge( $showcase_id );
 $showcase_metric       = sumou_get_work_metric( $showcase_id );
 $showcase_tagline      = sumou_get_work_tagline( $showcase_id );
@@ -44,7 +48,7 @@ $showcase_variants = array(
 );
 $showcase_style = $showcase_variants[ $showcase_variant ] ?? $showcase_variants[1];
 ?>
-<div class="work-showcase-card glass-luxury rounded-3xl overflow-hidden border border-slate-700/80 group reveal-on-scroll <?php echo esc_attr( $showcase_delay ); ?>">
+<div class="work-showcase-card project-card glass-luxury rounded-3xl overflow-hidden border border-slate-700/80 group reveal-on-scroll <?php echo esc_attr( $showcase_delay ); ?>"<?php echo $showcase_categories ? ' data-category="' . esc_attr( $showcase_categories ) . '"' : ''; ?>>
 <div class="h-56 bg-gradient-to-br <?php echo esc_attr( $showcase_style['header'] ); ?> relative p-6 flex flex-col justify-between overflow-hidden">
 <div class="flex justify-between items-center gap-2 z-10">
 <?php if ( $showcase_badge ) : ?>
@@ -83,6 +87,13 @@ $showcase_style = $showcase_variants[ $showcase_variant ] ?? $showcase_variants[
 <?php endif; ?>
 </div>
 <div class="p-6 space-y-4">
+<?php if ( $showcase_terms ) : ?>
+<div class="flex flex-wrap gap-1.5">
+<?php foreach ( $showcase_terms as $showcase_term ) : ?>
+<a class="text-[10px] px-2 py-0.5 rounded border border-slate-700/80 text-slate-400 hover:border-amber-400/40 hover:text-amber-300 transition-colors" href="<?php echo esc_url( sumou_get_work_filter_url( $showcase_term->slug ) ); ?>"><?php echo esc_html( $showcase_term->name ); ?></a>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
 <?php if ( $showcase_summary ) : ?>
 <p class="text-xs text-slate-300 leading-relaxed">
                 <?php echo esc_html( $showcase_summary ); ?>

@@ -3,7 +3,7 @@
 <?php while ( have_posts() ) : the_post(); ?>
 <?php
 $work_id           = get_the_ID();
-$work_category     = sumou_get_work_category( $work_id );
+$work_terms        = sumou_get_work_terms( $work_id );
 $work_accent       = sumou_get_work_accent( $work_id );
 $work_badge        = sumou_get_work_badge( $work_id );
 $work_sector       = sumou_get_work_sector( $work_id );
@@ -52,6 +52,13 @@ if ( null === $work_accent ) {
 <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
             <?php the_title(); ?>
           </h1>
+<?php if ( $work_terms ) : ?>
+<div class="flex flex-wrap gap-2">
+<?php foreach ( $work_terms as $work_term ) : ?>
+<a class="text-[11px] px-3 py-1 rounded-full border border-slate-700/80 text-slate-300 hover:border-amber-400/40 hover:text-amber-300 transition-colors" href="<?php echo esc_url( sumou_get_work_filter_url( $work_term->slug ) ); ?>"><?php echo esc_html( $work_term->name ); ?></a>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
 <?php if ( $work_summary ) : ?>
 <p class="text-slate-300 text-base sm:text-lg leading-relaxed"><?php echo esc_html( $work_summary ); ?></p>
 <?php endif; ?>

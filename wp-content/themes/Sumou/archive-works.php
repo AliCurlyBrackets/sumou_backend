@@ -73,15 +73,21 @@
 </section>
 
 <!-- ================= INTERACTIVE FILTER CHIPS ================= -->
+<?php
+$works_filter_terms  = sumou_get_work_filter_terms();
+$works_filter_active = sumou_get_work_filter_slug();
+$works_chip_active   = 'active-filter bg-gradient-to-r from-amber-300 to-amber-500 text-slate-950 shadow-[0_0_15px_rgba(212,165,55,0.4)]';
+$works_chip_idle     = 'text-slate-300 bg-slate-900/80 border border-slate-700/60 hover:border-amber-400/40 hover:text-amber-200';
+?>
 <section class="reveal-on-scroll py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full sticky top-20 z-30 backdrop-blur-xl bg-[#070C18]/80 border-y border-amber-500/10">
 <div class="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none" id="portfolioFilterContainer">
-<button class="filter-chip active-filter whitespace-nowrap px-5 py-2 rounded-full text-xs font-bold transition-all duration-300 bg-gradient-to-r from-amber-300 to-amber-500 text-slate-950 shadow-[0_0_15px_rgba(212,165,55,0.4)]" data-filter="all">
+<a class="filter-chip whitespace-nowrap px-5 py-2 rounded-full text-xs font-bold transition-all duration-300 <?php echo esc_attr( '' === $works_filter_active ? $works_chip_active : $works_chip_idle ); ?>" href="<?php echo esc_url( sumou_get_work_filter_url() ); ?>" data-filter="all">
         الكل (جميع المشاريع)
-      </button>
-<?php foreach ( sumou_get_work_categories() as $works_category_slug => $works_category ) : ?>
-<button class="filter-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold text-slate-300 bg-slate-900/80 border border-slate-700/60 hover:border-amber-400/40 hover:text-amber-200 transition-all duration-300" data-filter="<?php echo esc_attr( $works_category_slug ); ?>">
-        <?php echo esc_html( $works_category['label'] ); ?>
-      </button>
+      </a>
+<?php foreach ( $works_filter_terms as $works_filter_term ) : ?>
+<a class="filter-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 <?php echo esc_attr( $works_filter_active === $works_filter_term->slug ? $works_chip_active : $works_chip_idle ); ?>" href="<?php echo esc_url( sumou_get_work_filter_url( $works_filter_term->slug ) ); ?>" data-filter="<?php echo esc_attr( $works_filter_term->slug ); ?>">
+        <?php echo esc_html( $works_filter_term->name ); ?>
+      </a>
 <?php endforeach; ?>
 </div>
 </section>

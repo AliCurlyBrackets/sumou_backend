@@ -34,10 +34,84 @@ if ( ! function_exists( 'sumou_register_works_post_type' ) ) {
 }
 add_action( 'init', 'sumou_register_works_post_type' );
 
-// Refresh permalinks once when the theme is activated so /works/ works.
+//******************** Taxonomy: Work Categories ********************//
+
+if ( ! function_exists( 'sumou_register_work_category_taxonomy' ) ) {
+    function sumou_register_work_category_taxonomy() {
+        register_taxonomy( 'work_category', array( 'works' ), array(
+            'labels'            => array(
+                'name'              => 'Work Categories',
+                'singular_name'     => 'Work Category',
+                'search_items'      => 'Search Work Categories',
+                'all_items'         => 'All Work Categories',
+                'parent_item'       => 'Parent Work Category',
+                'parent_item_colon' => 'Parent Work Category:',
+                'edit_item'         => 'Edit Work Category',
+                'update_item'       => 'Update Work Category',
+                'add_new_item'      => 'Add New Work Category',
+                'new_item_name'     => 'New Work Category Name',
+                'menu_name'         => 'Work Categories',
+            ),
+            'public'            => true,
+            'publicly_queryable' => true,
+            'hierarchical'      => true,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'show_in_rest'      => true,
+            'rewrite'           => false,
+            'query_var'         => 'work_category',
+        ) );
+    }
+}
+add_action( 'init', 'sumou_register_work_category_taxonomy', 11 );
+
+if ( ! function_exists( 'sumou_default_work_categories' ) ) {
+    /**
+     * The categories the archive filter chips are designed around, in render order.
+     */
+    function sumou_default_work_categories() {
+        return array(
+            'platforms' => 'مواقع ومنصات تفاعلية',
+            'mobile'    => 'تطبيقات الجوال (iOS & Android)',
+            'ecommerce' => 'متاجر إلكترونية فاخرة',
+            'marketing' => 'حملات تسويقية وتطوير أعمال',
+            'seo'       => 'تصدر محركات البحث (SEO)',
+        );
+    }
+}
+
+if ( ! function_exists( 'sumou_seed_work_categories' ) ) {
+    function sumou_seed_work_categories() {
+        foreach ( sumou_default_work_categories() as $slug => $name ) {
+            if ( ! term_exists( $slug, 'work_category' ) ) {
+                wp_insert_term( $name, 'work_category', array( 'slug' => $slug ) );
+            }
+        }
+    }
+}
+
+if ( ! function_exists( 'sumou_seed_work_categories_once' ) ) {
+    /**
+     * Theme updates do not fire after_switch_theme, so the design categories are
+     * seeded on the first request that runs this version of the theme.
+     */
+    function sumou_seed_work_categories_once() {
+        if ( '1' === get_option( 'sumou_work_categories_seeded' ) ) {
+            return;
+        }
+
+        sumou_seed_work_categories();
+        update_option( 'sumou_work_categories_seeded', '1' );
+    }
+}
+add_action( 'init', 'sumou_seed_work_categories_once', 12 );
+
+// Refresh permalinks and create the design categories once on activation.
 if ( ! function_exists( 'sumou_works_flush_rewrites' ) ) {
     function sumou_works_flush_rewrites() {
         sumou_register_works_post_type();
+        sumou_register_work_category_taxonomy();
+        sumou_seed_work_categories_once();
         flush_rewrite_rules();
     }
 }
@@ -56,27 +130,11 @@ if ( function_exists( 'acf_add_local_field_group' ) ) {
                 'type'  => 'tab',
             ),
             array(
-                'key'           => 'field_work_category',
-                'label'         => 'Category',
-                'name'          => 'work_category',
-                'type'          => 'select',
-                'instructions'  => 'Selects the archive filter chip, the card accent and the card badge fallback.',
-                'choices'       => array(
-                    'platforms' => 'Websites & Interactive Platforms',
-                    'mobile'    => 'Mobile Apps (iOS & Android)',
-                    'ecommerce' => 'Luxury E-Commerce',
-                    'marketing' => 'Marketing & Business Growth',
-                    'seo'       => 'Search Engine Ranking (SEO)',
-                ),
-                'default_value' => 'platforms',
-                'allow_null'    => 0,
-            ),
-            array(
                 'key'          => 'field_work_badge',
                 'label'        => 'Card Badge',
                 'name'         => 'work_badge',
                 'type'         => 'text',
-                'instructions' => 'The pill above the card title. Falls back to the category label when empty.',
+                'instructions' => 'The pill above the card title. Falls back to the work category name when empty.',
             ),
             array(
                 'key'          => 'field_work_sector',
@@ -151,53 +209,16 @@ if ( function_exists( 'acf_add_local_field_group' ) ) {
 
 //******************** Helpers ********************//
 
-if ( ! function_exists( 'sumou_get_work_categories' ) ) {
-    /**
-     * The archive filter categories, in the order the filter chips render.
-     */
-    function sumou_get_work_categories() {
-        return array(
-            'platforms' => array(
-                'label'  => 'مواقع ومنصات تفاعلية',
-                'accent' => array(
-                    'badge'  => 'text-sky-300 border-sky-400/30',
-                    'metric' => 'bg-sky-400/20 text-sky-300 border-sky-400/30',
-                    'link'   => 'text-sky-300 hover:text-sky-200',
-                ),
-            ),
-            'mobile'    => array(
-                'label'  => 'تطبيقات الجوال (iOS & Android)',
-                'accent' => array(
-                    'badge'  => 'text-amber-300 border-amber-400/30',
-                    'metric' => 'bg-amber-400/20 text-amber-300 border-amber-400/30',
-                    'link'   => 'text-amber-300 hover:text-amber-200',
-                ),
-            ),
-            'ecommerce' => array(
-                'label'  => 'متاجر إلكترونية فاخرة',
-                'accent' => array(
-                    'badge'  => 'text-amber-300 border-amber-400/30',
-                    'metric' => 'bg-amber-400/20 text-amber-300 border-amber-400/30',
-                    'link'   => 'text-amber-300 hover:text-amber-200',
-                ),
-            ),
-            'marketing' => array(
-                'label'  => 'حملات تسويقية وتطوير أعمال',
-                'accent' => array(
-                    'badge'  => 'text-emerald-300 border-emerald-400/30',
-                    'metric' => 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30',
-                    'link'   => 'text-emerald-300 hover:text-emerald-200',
-                ),
-            ),
-            'seo'       => array(
-                'label'  => 'تصدر محركات البحث (SEO)',
-                'accent' => array(
-                    'badge'  => 'text-amber-300 border-amber-400/30',
-                    'metric' => 'bg-amber-400/20 text-amber-300 border-amber-400/30',
-                    'link'   => 'text-amber-300 hover:text-amber-200',
-                ),
-            ),
-        );
+if ( ! function_exists( 'sumou_get_work_terms' ) ) {
+    function sumou_get_work_terms( $post_id = null ) {
+        $post_id = $post_id ? $post_id : get_the_ID();
+        if ( ! $post_id ) {
+            return array();
+        }
+
+        $terms = get_the_terms( $post_id, 'work_category' );
+
+        return is_array( $terms ) ? $terms : array();
     }
 }
 
@@ -213,40 +234,69 @@ if ( ! function_exists( 'sumou_get_work_field' ) ) {
 }
 
 if ( ! function_exists( 'sumou_get_work_category' ) ) {
+    /**
+     * Slug of the first assigned category — the one the design accents and filters.
+     */
     function sumou_get_work_category( $post_id = null ) {
-        $category   = sumou_get_work_field( 'work_category', $post_id );
-        $categories = sumou_get_work_categories();
+        $terms = sumou_get_work_terms( $post_id );
 
-        return is_string( $category ) && isset( $categories[ $category ] ) ? $category : '';
+        return $terms ? $terms[0]->slug : '';
     }
 }
 
 if ( ! function_exists( 'sumou_get_work_category_label' ) ) {
     function sumou_get_work_category_label( $post_id = null ) {
-        $category = sumou_get_work_category( $post_id );
-        if ( '' === $category ) {
-            return '';
-        }
+        $terms = sumou_get_work_terms( $post_id );
 
-        $categories = sumou_get_work_categories();
+        return $terms ? $terms[0]->name : '';
+    }
+}
 
-        return $categories[ $category ]['label'];
+if ( ! function_exists( 'sumou_get_work_accents' ) ) {
+    /**
+     * Tailwind class sets for the design categories, keyed by taxonomy slug.
+     */
+    function sumou_get_work_accents() {
+        return array(
+            'platforms' => array(
+                'badge'  => 'text-sky-300 border-sky-400/30',
+                'metric' => 'bg-sky-400/20 text-sky-300 border-sky-400/30',
+                'link'   => 'text-sky-300 hover:text-sky-200',
+            ),
+            'mobile'    => array(
+                'badge'  => 'text-amber-300 border-amber-400/30',
+                'metric' => 'bg-amber-400/20 text-amber-300 border-amber-400/30',
+                'link'   => 'text-amber-300 hover:text-amber-200',
+            ),
+            'ecommerce' => array(
+                'badge'  => 'text-amber-300 border-amber-400/30',
+                'metric' => 'bg-amber-400/20 text-amber-300 border-amber-400/30',
+                'link'   => 'text-amber-300 hover:text-amber-200',
+            ),
+            'marketing' => array(
+                'badge'  => 'text-emerald-300 border-emerald-400/30',
+                'metric' => 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30',
+                'link'   => 'text-emerald-300 hover:text-emerald-200',
+            ),
+            'seo'       => array(
+                'badge'  => 'text-amber-300 border-amber-400/30',
+                'metric' => 'bg-amber-400/20 text-amber-300 border-amber-400/30',
+                'link'   => 'text-amber-300 hover:text-amber-200',
+            ),
+        );
     }
 }
 
 if ( ! function_exists( 'sumou_get_work_accent' ) ) {
     /**
-     * Tailwind class sets for the category accents, or null when no valid category is set.
+     * Tailwind class sets for the primary category, or null when the category
+     * is missing or is a term the design has no accent for.
      */
     function sumou_get_work_accent( $post_id = null ) {
+        $accents  = sumou_get_work_accents();
         $category = sumou_get_work_category( $post_id );
-        if ( '' === $category ) {
-            return null;
-        }
 
-        $categories = sumou_get_work_categories();
-
-        return $categories[ $category ]['accent'];
+        return $accents[ $category ] ?? null;
     }
 }
 
@@ -319,3 +369,73 @@ if ( ! function_exists( 'sumou_get_work_technologies' ) ) {
         return $technologies;
     }
 }
+
+//******************** Archive filter ********************//
+
+if ( ! function_exists( 'sumou_get_work_filter_terms' ) ) {
+    /**
+     * Categories that currently have works, in the order the chips render.
+     */
+    function sumou_get_work_filter_terms() {
+        $terms = get_terms( array(
+            'taxonomy'   => 'work_category',
+            'hide_empty' => true,
+            'orderby'    => 'term_id',
+            'order'      => 'ASC',
+        ) );
+
+        return is_array( $terms ) ? $terms : array();
+    }
+}
+
+if ( ! function_exists( 'sumou_get_work_filter_slug' ) ) {
+    function sumou_get_work_filter_slug() {
+        if ( ! isset( $_GET['work_category'] ) ) {
+            return '';
+        }
+
+        $slug = wp_unslash( $_GET['work_category'] );
+
+        return is_string( $slug ) ? sanitize_title( $slug ) : '';
+    }
+}
+
+if ( ! function_exists( 'sumou_get_work_filter_url' ) ) {
+    function sumou_get_work_filter_url( $slug = '' ) {
+        $archive = get_post_type_archive_link( 'works' );
+        if ( ! $archive ) {
+            return '';
+        }
+
+        return '' === $slug ? $archive : add_query_arg( 'work_category', $slug, $archive );
+    }
+}
+
+if ( ! function_exists( 'sumou_filter_works_archive' ) ) {
+    function sumou_filter_works_archive( $query ) {
+        if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( 'works' ) ) {
+            return;
+        }
+
+        $slug = sumou_get_work_filter_slug();
+        if ( '' === $slug ) {
+            return;
+        }
+
+        $term = get_term_by( 'slug', $slug, 'work_category' );
+        if ( ! $term ) {
+            $query->set_404();
+            return;
+        }
+
+        $query->set( 'tax_query', array(
+            array(
+                'taxonomy'         => 'work_category',
+                'field'            => 'term_id',
+                'terms'            => array( (int) $term->term_id ),
+                'include_children' => true,
+            ),
+        ) );
+    }
+}
+add_action( 'pre_get_posts', 'sumou_filter_works_archive' );

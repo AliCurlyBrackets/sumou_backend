@@ -88,8 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (filterButtons.length && projectCards.length) {
     const activeCls = ['active-filter', 'bg-gradient-to-r', 'from-amber-300', 'to-amber-500', 'text-slate-950', 'shadow-[0_0_15px_rgba(212,165,55,0.4)]'];
     filterButtons.forEach(button => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', event => {
         const filter = button.getAttribute('data-filter');
+
+        if (button.getAttribute('href')) {
+          event.preventDefault();
+          history.replaceState(null, '', button.getAttribute('href'));
+        }
 
         filterButtons.forEach(btn => {
           btn.classList.remove(...activeCls);
@@ -99,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         button.classList.remove('text-slate-300', 'bg-slate-900/80', 'border-slate-700/60');
 
         projectCards.forEach(card => {
-          const show = filter === 'all' || card.getAttribute('data-category') === filter;
+          const categories = (card.getAttribute('data-category') || '').split(' ').filter(Boolean);
+          const show = filter === 'all' || categories.includes(filter);
           if (show) {
             card.style.display = 'flex';
             setTimeout(() => { card.style.opacity = '1'; card.style.transform = 'scale(1)'; }, 50);

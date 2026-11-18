@@ -33,6 +33,21 @@ $portfolio_delays  = array( '', 'delay-100', 'delay-200' );
 </div>
 <?php endif; ?>
 </div>
+<?php
+$portfolio_filter_terms = sumou_get_work_filter_terms();
+if ( $portfolio_filter_terms ) :
+?>
+<div class="flex flex-wrap items-center gap-2.5 mb-10 reveal-on-scroll" id="portfolioSectionFilter">
+<button class="filter-chip active-filter whitespace-nowrap px-5 py-2 rounded-full text-xs font-bold transition-all duration-300 bg-gradient-to-r from-amber-300 to-amber-500 text-slate-950 shadow-[0_0_15px_rgba(212,165,55,0.4)]" data-filter="all">
+            الكل
+          </button>
+<?php foreach ( $portfolio_filter_terms as $portfolio_filter_term ) : ?>
+<button class="filter-chip whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold text-slate-300 bg-slate-900/80 border border-slate-700/60 hover:border-amber-400/40 hover:text-amber-200 transition-all duration-300" data-filter="<?php echo esc_attr( $portfolio_filter_term->slug ); ?>">
+            <?php echo esc_html( $portfolio_filter_term->name ); ?>
+          </button>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
 <?php if ( $portfolio_query->have_posts() ) : ?>
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 <?php

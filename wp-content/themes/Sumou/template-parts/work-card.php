@@ -12,7 +12,10 @@ if ( ! $card_id ) {
 $card_title        = get_the_title( $card_id );
 $card_permalink    = get_permalink( $card_id );
 $card_image_url    = get_the_post_thumbnail_url( $card_id, 'large' );
-$card_category     = sumou_get_work_category( $card_id );
+$card_terms        = sumou_get_work_terms( $card_id );
+$card_categories   = implode( ' ', array_map( function ( $term ) {
+    return $term->slug;
+}, $card_terms ) );
 $card_accent       = sumou_get_work_accent( $card_id );
 $card_badge        = sumou_get_work_badge( $card_id );
 $card_sector       = sumou_get_work_sector( $card_id );
@@ -30,7 +33,7 @@ if ( null === $card_accent ) {
     );
 }
 ?>
-<article class="reveal-on-scroll <?php echo esc_attr( $card_delay ); ?> project-card group relative rounded-3xl overflow-hidden bg-slate-900/80 border border-amber-500/20 backdrop-blur-xl hover:border-amber-400/60 transition-all duration-500 flex flex-col justify-between"<?php echo $card_category ? ' data-category="' . esc_attr( $card_category ) . '"' : ''; ?>>
+<article class="reveal-on-scroll <?php echo esc_attr( $card_delay ); ?> project-card group relative rounded-3xl overflow-hidden bg-slate-900/80 border border-amber-500/20 backdrop-blur-xl hover:border-amber-400/60 transition-all duration-500 flex flex-col justify-between"<?php echo $card_categories ? ' data-category="' . esc_attr( $card_categories ) . '"' : ''; ?>>
 <div>
 <div class="relative h-60 overflow-hidden bg-slate-950">
 <?php if ( $card_image_url ) : ?>
@@ -58,6 +61,13 @@ if ( null === $card_accent ) {
 <h3 class="text-xl font-bold text-white group-hover:text-amber-300 transition-colors">
               <?php echo esc_html( $card_title ); ?>
             </h3>
+<?php if ( $card_terms ) : ?>
+<div class="flex flex-wrap gap-1.5">
+<?php foreach ( $card_terms as $card_term ) : ?>
+<a class="text-[10px] px-2 py-0.5 rounded border border-slate-700/80 text-slate-400 hover:border-amber-400/40 hover:text-amber-300 transition-colors" href="<?php echo esc_url( sumou_get_work_filter_url( $card_term->slug ) ); ?>"><?php echo esc_html( $card_term->name ); ?></a>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
 <?php if ( $card_summary ) : ?>
 <p class="text-xs text-slate-300/85 leading-relaxed line-clamp-2">
               <?php echo esc_html( $card_summary ); ?>
