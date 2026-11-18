@@ -463,11 +463,13 @@ $works_group = find_group( 'works' );
 assert_true( null !== $works_group, 'The Works field group is bound to the works post type' );
 assert_true( null === find_group_field( $works_group, 'work_category' ), 'The category is a taxonomy term, not a duplicated ACF field' );
 
-foreach ( array( 'work_badge' => 'text', 'work_sector' => 'text', 'work_metric' => 'text', 'work_result' => 'text', 'work_summary' => 'textarea' ) as $field_name => $field_type ) {
+foreach ( array( 'work_badge' => 'text', 'work_sector' => 'text', 'work_metric' => 'text', 'work_result' => 'text', 'work_summary' => 'textarea', 'work_project_url' => 'url' ) as $field_name => $field_type ) {
     $field = find_group_field( $works_group, $field_name );
     assert_true( null !== $field, 'The Works group has a ' . $field_name . ' field' );
     assert_true( $field_type === ( $field['type'] ?? '' ), $field_name . ' is a ' . $field_type . ' field' );
 }
+
+assert_true( 'Project URL' === ( find_group_field( $works_group, 'work_project_url' )['label'] ?? '' ), 'The project URL field is labelled "Project URL" in the backend' );
 
 $technologies_field = find_group_field( $works_group, 'work_technologies' );
 assert_true( null !== $technologies_field, 'The Works group has a work_technologies field' );
@@ -514,6 +516,7 @@ $GLOBALS['test_field_values'][101] = array(
     'work_metric'       => '1.2 مليار ر.س صفقات',
     'work_result'       => 'أكثر من 40,000 عقار معتمد',
     'work_summary'      => 'منظومة وساطة واستثمار عقاري شاملة بالذكاء الاصطناعي.',
+    'work_project_url'  => 'https://hektar.example/project',
     'work_technologies' => array(
         array( 'label' => 'Mapbox GL' ),
         array( 'label' => 'PostgreSQL' ),
@@ -533,6 +536,8 @@ assert_true( 'الاستثمار والتطوير العقاري' === sumou_get_
 assert_true( '1.2 مليار ر.س صفقات' === sumou_get_work_metric( 101 ), 'The metric is resolved' );
 assert_true( 'أكثر من 40,000 عقار معتمد' === sumou_get_work_result( 101 ), 'The footer result is resolved' );
 assert_true( 'منظومة وساطة واستثمار عقاري شاملة بالذكاء الاصطناعي.' === sumou_get_work_summary( 101 ), 'The summary comes from the work field' );
+assert_true( 'https://hektar.example/project' === sumou_get_work_project_url( 101 ), 'The project URL comes from the work field' );
+assert_true( '' === sumou_get_work_project_url( 102 ), 'A work without a project URL has none' );
 assert_true(
     array( 'Mapbox GL', 'PostgreSQL' ) === sumou_get_work_technologies( 101 ),
     'Technologies are collected and blank rows are dropped'
@@ -629,13 +634,20 @@ assert_contains( 'أكثر من 40,000 عقار معتمد', $card_output, 'The 
 assert_contains( 'https://example.test/hektar.jpg', $card_output, 'The card renders the featured image' );
 assert_contains( 'https://example.test/?p=101', $card_output, 'The card links to the work' );
 assert_contains( 'https://example.test/works/?work_category=platforms', $card_output, 'The card links its category to the filtered archive' );
-assert_contains( 'دراسة الحالة', $card_output, 'The card links to the case study' );
+assert_contains( 'التفاصيل', $card_output, 'The card labels its details link in Arabic' );
+assert_not_contains( 'دراسة الحالة', $card_output, 'The card no longer says case study' );
+assert_contains( 'work-project-link', $card_output, 'The card offers a view project button' );
+assert_contains( 'زيارة المشروع', $card_output, 'The view project button is labelled in Arabic' );
+assert_contains( 'href="https://hektar.example/project"', $card_output, 'The view project button opens the project URL' );
+assert_contains( 'target="_blank"', $card_output, 'The project link opens in a new tab' );
+assert_contains( 'rel="noopener noreferrer"', $card_output, 'The external project link is opened safely' );
 assert_contains( 'text-sky-300', $card_output, 'The card accent follows the category' );
 
 $no_category_card = render_work_card( 102 );
 assert_not_contains( 'data-category=', $no_category_card, 'A work without a term carries no filter value' );
 assert_contains( 'عمل بدون تصنيف', $no_category_card, 'A work without a term still renders its title' );
 assert_contains( 'https://example.test/?p=102', $no_category_card, 'A work without a term still links to its page' );
+assert_not_contains( 'work-project-link', $no_category_card, 'A work without a project URL shows no view project button' );
 
 $multi_term_card = render_work_card( 106 );
 assert_contains( 'data-category="ecommerce marketing"', $multi_term_card, 'A work with several terms exposes all of them to the filter' );

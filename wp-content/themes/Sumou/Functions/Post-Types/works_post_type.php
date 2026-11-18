@@ -158,6 +158,13 @@ if ( function_exists( 'acf_add_local_field_group' ) ) {
                 'instructions' => 'The metric shown in the card footer. Leave empty to hide it.',
             ),
             array(
+                'key'          => 'field_work_project_url',
+                'label'        => 'Project URL',
+                'name'         => 'work_project_url',
+                'type'         => 'url',
+                'instructions' => 'The live project link the "View Project" button opens in a new tab. Leave empty to hide the button.',
+            ),
+            array(
                 'key'          => 'field_work_summary',
                 'label'        => 'Short Summary',
                 'name'         => 'work_summary',
@@ -319,6 +326,12 @@ if ( ! function_exists( 'sumou_get_work_metric' ) ) {
 if ( ! function_exists( 'sumou_get_work_result' ) ) {
     function sumou_get_work_result( $post_id = null ) {
         return trim( (string) sumou_get_work_field( 'work_result', $post_id ) );
+    }
+}
+
+if ( ! function_exists( 'sumou_get_work_project_url' ) ) {
+    function sumou_get_work_project_url( $post_id = null ) {
+        return trim( (string) sumou_get_work_field( 'work_project_url', $post_id ) );
     }
 }
 

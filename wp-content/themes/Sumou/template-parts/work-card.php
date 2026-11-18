@@ -21,6 +21,7 @@ $card_badge        = sumou_get_work_badge( $card_id );
 $card_sector       = sumou_get_work_sector( $card_id );
 $card_metric       = sumou_get_work_metric( $card_id );
 $card_result       = sumou_get_work_result( $card_id );
+$card_project_url  = sumou_get_work_project_url( $card_id );
 $card_summary      = sumou_get_work_summary( $card_id );
 $card_technologies = sumou_get_work_technologies( $card_id );
 $card_delay        = isset( $args['delay'] ) ? $args['delay'] : '';
@@ -86,9 +87,17 @@ if ( null === $card_accent ) {
 <?php if ( $card_result ) : ?>
 <span class="text-xs text-slate-400 font-num"><?php echo esc_html( $card_result ); ?></span>
 <?php endif; ?>
+<div class="flex items-center gap-3">
+<?php if ( $card_project_url ) : ?>
+<a class="work-project-link inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-400/40 text-amber-300 hover:bg-amber-400/10 transition-colors" href="<?php echo esc_url( $card_project_url ); ?>" target="_blank" rel="noopener noreferrer">
+<span>زيارة المشروع</span>
+<span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+<?php endif; ?>
 <a class="text-xs font-bold flex items-center gap-1 group-hover:translate-x-[-3px] transition-transform <?php echo esc_attr( $card_accent['link'] ); ?>" href="<?php echo esc_url( $card_permalink ); ?>">
-<span>دراسة الحالة</span>
+<span>التفاصيل</span>
 <span class="material-symbols-outlined text-sm">arrow_back</span>
 </a>
+</div>
 </div>
 </article>
