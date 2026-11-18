@@ -363,12 +363,15 @@ function render_work_card( $post_id, $delay = '' ) {
     return ob_get_clean();
 }
 
-function render_showcase_card( $post_id, $variant = 1, $delay = '' ) {
-    global $theme_dir;
-    $args = array( 'post_id' => $post_id, 'variant' => $variant, 'delay' => $delay );
-    ob_start();
-    include $theme_dir . '/template-parts/work-showcase-card.php';
-    return ob_get_clean();
+function extract_work_card( $html ) {
+    $start = strpos( $html, '<article' );
+    $end   = strpos( $html, '</article>' );
+
+    if ( false === $start || false === $end ) {
+        return '';
+    }
+
+    return substr( $html, $start, $end - $start + strlen( '</article>' ) );
 }
 
 function render_portfolio() {
@@ -460,7 +463,7 @@ $works_group = find_group( 'works' );
 assert_true( null !== $works_group, 'The Works field group is bound to the works post type' );
 assert_true( null === find_group_field( $works_group, 'work_category' ), 'The category is a taxonomy term, not a duplicated ACF field' );
 
-foreach ( array( 'work_badge' => 'text', 'work_sector' => 'text', 'work_metric' => 'text', 'work_result' => 'text', 'work_tagline' => 'text', 'work_summary' => 'textarea' ) as $field_name => $field_type ) {
+foreach ( array( 'work_badge' => 'text', 'work_sector' => 'text', 'work_metric' => 'text', 'work_result' => 'text', 'work_summary' => 'textarea' ) as $field_name => $field_type ) {
     $field = find_group_field( $works_group, $field_name );
     assert_true( null !== $field, 'The Works group has a ' . $field_name . ' field' );
     assert_true( $field_type === ( $field['type'] ?? '' ), $field_name . ' is a ' . $field_type . ' field' );
@@ -510,7 +513,6 @@ $GLOBALS['test_field_values'][101] = array(
     'work_sector'       => 'الاستثمار والتطوير العقاري',
     'work_metric'       => '1.2 مليار ر.س صفقات',
     'work_result'       => 'أكثر من 40,000 عقار معتمد',
-    'work_tagline'      => 'منصة متطورة لحجز العقارات الفاخرة بالرياض ودبي',
     'work_summary'      => 'منظومة وساطة واستثمار عقاري شاملة بالذكاء الاصطناعي.',
     'work_technologies' => array(
         array( 'label' => 'Mapbox GL' ),
@@ -530,7 +532,6 @@ assert_true( 'منصة مؤسسية ذكية' === sumou_get_work_badge( 101 ), '
 assert_true( 'الاستثمار والتطوير العقاري' === sumou_get_work_sector( 101 ), 'The sector label is resolved' );
 assert_true( '1.2 مليار ر.س صفقات' === sumou_get_work_metric( 101 ), 'The metric is resolved' );
 assert_true( 'أكثر من 40,000 عقار معتمد' === sumou_get_work_result( 101 ), 'The footer result is resolved' );
-assert_true( 'منصة متطورة لحجز العقارات الفاخرة بالرياض ودبي' === sumou_get_work_tagline( 101 ), 'The showcase tagline is resolved' );
 assert_true( 'منظومة وساطة واستثمار عقاري شاملة بالذكاء الاصطناعي.' === sumou_get_work_summary( 101 ), 'The summary comes from the work field' );
 assert_true(
     array( 'Mapbox GL', 'PostgreSQL' ) === sumou_get_work_technologies( 101 ),
@@ -646,15 +647,6 @@ $escaped_card                                      = render_work_card( 105 );
 assert_not_contains( '<script>', $escaped_card, 'Work values are escaped in the card' );
 assert_contains( '&lt;script&gt;alert(2)&lt;/script&gt;', $escaped_card, 'The work title is HTML encoded' );
 
-//******************** Showcase card ********************//
-
-$showcase_output = render_showcase_card( 101, 1, 'delay-100' );
-assert_contains( 'work-showcase-card', $showcase_output, 'The showcase card keeps its class' );
-assert_contains( 'project-card', $showcase_output, 'The showcase card joins the home section filter' );
-assert_contains( 'data-category="platforms"', $showcase_output, 'The showcase card exposes its taxonomy term' );
-assert_contains( 'https://example.test/works/?work_category=platforms', $showcase_output, 'The showcase card links its category to the filtered archive' );
-assert_contains( 'منصة متطورة لحجز العقارات الفاخرة بالرياض ودبي', $showcase_output, 'The showcase card renders its tagline' );
-
 //******************** Archive template ********************//
 
 $GLOBALS['test_loop_ids']         = array( 101, 102 );
@@ -735,7 +727,13 @@ $portfolio_output                = render_portfolio();
 assert_contains( 'id="portfolio"', $portfolio_output, 'The home section keeps its anchor' );
 assert_contains( 'منصة هكتار العقارية الذكية', $portfolio_output, 'The home section renders the works' );
 assert_contains( 'عمل سادس', $portfolio_output, 'The home section renders six works' );
-assert_true( 6 === substr_count( $portfolio_output, 'work-showcase-card' ), 'The home section renders exactly six work cards' );
+assert_true( 6 === substr_count( $portfolio_output, '<article' ), 'The home section renders exactly six work cards' );
+assert_not_contains( 'work-showcase-card', $portfolio_output, 'The home section reuses the archive card instead of a showcase variant' );
+assert_contains( 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8', $portfolio_output, 'The home section lays its cards out on the archive grid' );
+assert_true(
+    trim( extract_work_card( $portfolio_output ) ) === trim( render_work_card( 101, 'reveal-delay-100' ) ),
+    'The home section renders the archive card markup unchanged'
+);
 assert_contains( 'https://example.test/works/', $portfolio_output, 'The home section links to the works archive' );
 assert_contains( '(+6)', $portfolio_output, 'The home section shows the published works count' );
 assert_true( 'works' === ( $GLOBALS['test_queries'][0]['post_type'] ?? '' ), 'The home section queries the works post type' );

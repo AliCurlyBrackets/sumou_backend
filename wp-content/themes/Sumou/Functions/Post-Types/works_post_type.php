@@ -158,13 +158,6 @@ if ( function_exists( 'acf_add_local_field_group' ) ) {
                 'instructions' => 'The metric shown in the card footer. Leave empty to hide it.',
             ),
             array(
-                'key'          => 'field_work_tagline',
-                'label'        => 'Showcase Tagline',
-                'name'         => 'work_tagline',
-                'type'         => 'text',
-                'instructions' => 'The one-line subtitle on the home page showcase card. Leave empty to hide it.',
-            ),
-            array(
                 'key'          => 'field_work_summary',
                 'label'        => 'Short Summary',
                 'name'         => 'work_summary',
@@ -326,12 +319,6 @@ if ( ! function_exists( 'sumou_get_work_metric' ) ) {
 if ( ! function_exists( 'sumou_get_work_result' ) ) {
     function sumou_get_work_result( $post_id = null ) {
         return trim( (string) sumou_get_work_field( 'work_result', $post_id ) );
-    }
-}
-
-if ( ! function_exists( 'sumou_get_work_tagline' ) ) {
-    function sumou_get_work_tagline( $post_id = null ) {
-        return trim( (string) sumou_get_work_field( 'work_tagline', $post_id ) );
     }
 }
 

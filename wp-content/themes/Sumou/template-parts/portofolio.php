@@ -10,7 +10,7 @@ $portfolio_query = new WP_Query( array(
 
 $portfolio_archive = get_post_type_archive_link( 'works' );
 $portfolio_count   = wp_count_posts( 'works' )->publish;
-$portfolio_delays  = array( '', 'delay-100', 'delay-200' );
+$portfolio_delays  = array( 'reveal-delay-100', 'reveal-delay-200', 'reveal-delay-300' );
 ?>
 <section class="py-24 bg-brand-navyLight/40 border-t border-slate-800" data-purpose="portfolio-showcase" id="portfolio">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,14 +49,13 @@ if ( $portfolio_filter_terms ) :
 </div>
 <?php endif; ?>
 <?php if ( $portfolio_query->have_posts() ) : ?>
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 <?php
 $portfolio_index = 0;
 while ( $portfolio_query->have_posts() ) :
     $portfolio_query->the_post();
-    get_template_part( 'template-parts/work-showcase-card', null, array(
+    get_template_part( 'template-parts/work-card', null, array(
         'post_id' => get_the_ID(),
-        'variant' => ( $portfolio_index % 3 ) + 1,
         'delay'   => $portfolio_delays[ $portfolio_index % 3 ],
     ) );
     $portfolio_index++;
